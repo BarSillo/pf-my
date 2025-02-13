@@ -303,7 +303,7 @@ def run_my_example():
     strike = 100.0
     r = 0.05
     mu = 0.07 # 0.05
-    vol = 0.16
+    vol = 0.4
     T = 1.0*60.0/252.
 
     # Simulation Parameters
