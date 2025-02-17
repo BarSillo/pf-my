@@ -6,7 +6,7 @@ from sklearn.preprocessing import PolynomialFeatures, SplineTransformer
 from abc import ABC, abstractmethod
 import os
 import sys
-from rlhedge import DiscreteBlackScholes
+# from rlhedge import DiscreteBlackScholes
 
 # Add parent directory to path for imports
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
