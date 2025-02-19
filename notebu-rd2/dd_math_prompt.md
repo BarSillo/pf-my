@@ -145,8 +145,8 @@ if __name__ == "__main__":
     params = {
         'K': 100,        # Strike
         'r': 0.05,       # Risk-free rate
-        'sigma': 0.2,    # Volatility
-        'T': 1.0,        # Time to expiration
+        'sigma': 0.158,    # Volatility
+        'T': 5.0 / 252,        # Time to expiration
         'mu': 0.07       # Real-world drift
     }
     
@@ -190,7 +190,7 @@ cdef public double integrand(int n, double *args) nogil:
 | Parameter | Symbol | Example Value | Description |
 |-----------|--------|---------------|-------------|
 | K         | $K$    | 100           | Strike price |
-| sigma     | $\sigma$ | 0.2         | Annual volatility |
+| sigma     | $\sigma$ | 0.158       | Annual volatility |
 | mu        | $\mu$  | 0.07          | Real-world drift |
 | delta_t   | $\Delta t$ | 1/252     | Daily time step |
 
@@ -205,9 +205,37 @@ cdef public double integrand(int n, double *args) nogil:
 5.960594     0.001846
 dtype: float64
 ```
+## 7. initial parameters:
+```py
+    # Set model parameters.
+    params = {
+        'K': 100,       # Strike price
+        'r': 0.05,      # Risk-free rate
+        'sigma': 0.158,   # Annual volatility
+        'T': 5.0 / 252,       # Time to expiration
+        'mu': 0.07      # Real-world drift
+    }
+    
+    calculator = DeltaCalculator(**params)
+    sigma_moves = np.arange(-4, 4.1, 0.1)
+    initial_deltas = [0.1, 0.2, 0.4, 0.5, 0.6, 0.8, 0.9]
+    delta_t = 1/252  # Daily time step
+```
+
+## 8. Plotting paramters:
+Save these parameters as default canvas for plotting as a property of the class and use them in all plotting methods for the dataframe:
+```python
+    # Plotting with custom settings:
+    fig, ax = plt.subplots(figsize=(10, 6))
+    fig.patch.set_facecolor('#F5F5DC')  # Light beige for the figure background
+    ax.set_facecolor('#FAF0E6')         # Lighter beige for the plot area
+```
 
 ## Restart Checklist
 1. Verify Black-Scholes formulas match use case
 2. Validate PDF implementation matches market data
 3. Adjust sigma_moves range as needed
 4. Implement pending Cython optimizations for production use
+5. Change code to return a dataframe that has expected delta change for each value of underlying change. 
+The dataframe should be indexed by change in underlying from initial value of stock.
+6. Implement a method that would output change in inital delta of the option due to options charm and also have a method to plot the series of charm for each initial delta. For plotting charm use initial stock price initial associated with given initial delta. I want to see a single expected change in options delta due ta passage of delta_t which is initialized to be one day. I want to compare the effect of it across options that have diffrent initial deltas.

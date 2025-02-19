@@ -12,11 +12,9 @@ from functools import cached_property
 
 
 class BSOption:
-    """Base class for Black-Scholes option calculations"""
+    """Black-Scholes option calculations with Greeks."""
     def __init__(self, K: float, r: float, sigma: float, T: float):
         """
-        Initialize Black-Scholes parameters.
-        
         Args:
             K: Strike price
             r: Risk-free rate (annualized)
@@ -29,13 +27,12 @@ class BSOption:
         self.T = T
 
     def _d1(self, S: float, t: float) -> float:
-        """Calculate d1 parameter"""
-        return (np.log(S/self.K) + (self.r + 0.5*self.sigma**2)*t) / (self.sigma*np.sqrt(t))
+        return (np.log(S / self.K) + (self.r + 0.5 * self.sigma**2) * t) / (self.sigma * np.sqrt(t))
 
     def delta(self, S: float, t: float) -> float:
-        """Calculate option delta"""
+        """Call option delta."""
         return norm.cdf(self._d1(S, t))
-
+    
     def theta(self, S: float, t: float) -> float:
         """Calculate option theta"""
         if t <= 1e-6:
@@ -44,16 +41,21 @@ class BSOption:
         d2 = d1 - self.sigma*np.sqrt(t)
         return - (S*self.sigma*norm.pdf(d1))/(2*np.sqrt(t)) - self.r*self.K*np.exp(-self.r*t)*norm.cdf(d2)
 
+    def gamma(self, S: float, t: float) -> float:
+        d1 = self._d1(S, t)
+        return norm.pdf(d1) / (S * self.sigma * np.sqrt(t))
+    
     def charm(self, S: float, t: float) -> float:
-        """Calculate option charm (delta decay)"""
+        """
+        Option charm (delta decay): the rate of change of delta with respect to time.
+        """
         if t <= 1e-6:
             return 0.0
         d1 = self._d1(S, t)
         pdf = norm.pdf(d1)
-        term1 = (self.r + 0.5*self.sigma**2)/(self.sigma*np.sqrt(t))
-        term2 = d1/(2*t)
+        term1 = (self.r + 0.5 * self.sigma**2) / (self.sigma * np.sqrt(t))
+        term2 = d1 / (2 * t)
         return -pdf * (term1 - term2)
-
 
 class DeltaSimulator(BSOption):
     """Simulates delta differences under price moves"""
